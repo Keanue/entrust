@@ -8,6 +8,8 @@
  * @package Zizaco\Entrust
  */
 
+use Illuminate\Support\Facades\Config;
+
 class Entrust
 {
     /**
@@ -86,7 +88,7 @@ class Entrust
      */
     public function user()
     {
-        return $this->app->auth->user();
+        return $this->app->auth->guard(Config::get('entrust.guard'))->user();
     }
 
     /**
@@ -104,8 +106,8 @@ class Entrust
      */
     public function routeNeedsRole($route, $roles, $result = null, $requireAll = true)
     {
-        $filterName  = is_array($roles) ? implode('_', $roles) : $roles;
-        $filterName .= '_'.substr(md5($route), 0, 6);
+        $filterName = is_array($roles) ? implode('_', $roles) : $roles;
+        $filterName .= '_' . substr(md5($route), 0, 6);
 
         $closure = function () use ($roles, $result, $requireAll) {
             $hasRole = $this->hasRole($roles, $requireAll);
@@ -138,8 +140,8 @@ class Entrust
      */
     public function routeNeedsPermission($route, $permissions, $result = null, $requireAll = true)
     {
-        $filterName  = is_array($permissions) ? implode('_', $permissions) : $permissions;
-        $filterName .= '_'.substr(md5($route), 0, 6);
+        $filterName = is_array($permissions) ? implode('_', $permissions) : $permissions;
+        $filterName .= '_' . substr(md5($route), 0, 6);
 
         $closure = function () use ($permissions, $result, $requireAll) {
             $hasPerm = $this->can($permissions, $requireAll);
@@ -173,9 +175,9 @@ class Entrust
      */
     public function routeNeedsRoleOrPermission($route, $roles, $permissions, $result = null, $requireAll = false)
     {
-        $filterName  =      is_array($roles)       ? implode('_', $roles)       : $roles;
-        $filterName .= '_'.(is_array($permissions) ? implode('_', $permissions) : $permissions);
-        $filterName .= '_'.substr(md5($route), 0, 6);
+        $filterName = is_array($roles) ? implode('_', $roles) : $roles;
+        $filterName .= '_' . (is_array($permissions) ? implode('_', $permissions) : $permissions);
+        $filterName .= '_' . substr(md5($route), 0, 6);
 
         $closure = function () use ($roles, $permissions, $result, $requireAll) {
             $hasRole  = $this->hasRole($roles, $requireAll);
